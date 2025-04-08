@@ -7,13 +7,13 @@ from .models import User, Team, Activity, Leaderboard, Workout
 
 @api_view(['GET'])
 def api_root(request, format=None):
-    base_url = settings.ALLOWED_HOSTS[0]  # Use the first allowed host as the base URL
+    base_url = 'https://[REPLACE-THIS-WITH-YOUR-CODESPACE-NAME]-8000.app.github.dev/'
     return Response({
-        'users': f'https://{base_url}/api/users/',
-        'teams': f'https://{base_url}/api/teams/',
-        'activities': f'https://{base_url}/api/activities/',
-        'leaderboard': f'https://{base_url}/api/leaderboard/',
-        'workouts': f'https://{base_url}/api/workouts/',
+        'users': base_url + 'api/users/',
+        'teams': base_url + 'api/teams/',
+        'activities': base_url + 'api/activities/',
+        'leaderboard': base_url + 'api/leaderboard/',
+        'workouts': base_url + 'api/workouts/',
     })
 
 class UserViewSet(viewsets.ModelViewSet):
