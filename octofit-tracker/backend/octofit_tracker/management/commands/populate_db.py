@@ -1,6 +1,8 @@
 import logging
 from django.core.management.base import BaseCommand
 from octofit_tracker.models import User, Team, Activity, Leaderboard, Workout
+from django.conf import settings
+from pymongo import MongoClient
 from datetime import timedelta
 from bson import ObjectId
 
@@ -14,13 +16,17 @@ class Command(BaseCommand):
         try:
             logging.debug('Starting database population...')
 
-            # Clear existing data
-            logging.debug('Clearing existing data...')
-            User.objects.all().delete()
-            Team.objects.all().delete()
-            Activity.objects.all().delete()
-            Leaderboard.objects.all().delete()
-            Workout.objects.all().delete()
+            # Connect to MongoDB
+            client = MongoClient(settings.DATABASES['default']['HOST'], settings.DATABASES['default']['PORT'])
+            db = client[settings.DATABASES['default']['NAME']]
+
+            # Drop existing collections
+            logging.debug('Dropping existing collections...')
+            db.users.drop()
+            db.teams.drop()
+            db.activities.drop()
+            db.leaderboard.drop()
+            db.workouts.drop()
 
             # Create users
             logging.debug('Creating users...')
@@ -35,12 +41,15 @@ class Command(BaseCommand):
 
             # Create teams
             logging.debug('Creating teams...')
-            team1 = Team(_id=ObjectId(), name='Blue Team')
-            team2 = Team(_id=ObjectId(), name='Gold Team')
-            team1.save()
-            team2.save()
-            team1.members.add(users[0], users[1])
-            team2.members.add(users[2], users[3], users[4])
+            teams = [
+                Team(_id=ObjectId(), name='Blue Team'),
+                Team(_id=ObjectId(), name='Gold Team'),
+            ]
+            Team.objects.bulk_create(teams)
+
+            # Assign users to teams
+            for team in teams:
+                team.members.set(users)
 
             # Create activities
             logging.debug('Creating activities...')
