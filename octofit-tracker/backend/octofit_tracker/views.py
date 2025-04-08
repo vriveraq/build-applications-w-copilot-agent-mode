@@ -1,17 +1,19 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.conf import settings
 from .serializers import UserSerializer, TeamSerializer, ActivitySerializer, LeaderboardSerializer, WorkoutSerializer
 from .models import User, Team, Activity, Leaderboard, Workout
 
 @api_view(['GET'])
 def api_root(request, format=None):
+    base_url = settings.ALLOWED_HOSTS[0]  # Use the first allowed host as the base URL
     return Response({
-        'users': 'api/users/',
-        'teams': 'api/teams/',
-        'activities': 'api/activities/',
-        'leaderboard': 'api/leaderboard/',
-        'workouts': 'api/workouts/',
+        'users': f'https://{base_url}/api/users/',
+        'teams': f'https://{base_url}/api/teams/',
+        'activities': f'https://{base_url}/api/activities/',
+        'leaderboard': f'https://{base_url}/api/leaderboard/',
+        'workouts': f'https://{base_url}/api/workouts/',
     })
 
 class UserViewSet(viewsets.ModelViewSet):
